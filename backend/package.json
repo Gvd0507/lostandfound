@@ -1,0 +1,36 @@
+{
+  "name": "lost-and-found-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Campus Lost and Found System",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "db:setup": "node src/database/setup.js",
+    "db:migrate": "node src/database/migrate.js"
+  },
+  "keywords": [
+    "lost-and-found",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@tensorflow-models/mobilenet": "^2.1.1",
+    "@tensorflow/tfjs": "^4.13.0",
+    "@tensorflow/tfjs-backend-cpu": "^4.13.0",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.3",
+    "firebase-admin": "^13.6.0",
+    "natural": "^6.10.1",
+    "pg": "^8.11.3",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
