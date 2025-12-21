@@ -36,6 +36,6 @@ module.exports = {
   ai: {
     imageSimilarityThreshold: parseFloat(process.env.IMAGE_SIMILARITY_THRESHOLD) || 0.75,
     textSimilarityThreshold: parseFloat(process.env.TEXT_SIMILARITY_THRESHOLD) || 0.60,
-    matchScoreThreshold: parseFloat(process.env.MATCH_SCORE_THRESHOLD) || 0.70,
+    matchScoreThreshold: parseFloat(process.env.MATCH_SCORE_THRESHOLD) || 0.75, // Increased from 0.70
   },
 };

@@ -13,12 +13,11 @@ exports.getMyMatches = async (req, res) => {
         li.category as lost_category,
         li.image_url as lost_image_url,
         li.user_id as lost_user_id,
-        li.secret_question,
         fi.item_name as found_item_name,
         fi.category as found_category,
         fi.image_url as found_image_url,
         fi.user_id as found_user_id,
-        fi.secret_detail,
+        fi.secret_question,
         fi.where_to_find
       FROM matches m
       JOIN lost_items li ON m.lost_item_id = li.id
@@ -58,9 +57,9 @@ exports.getMyMatches = async (req, res) => {
           category: match.lost_category,
           imageUrl: match.lost_image_url,
         },
-        requiresVerification: match.status === 'matched',
+        // ONLY the person who lost the item can verify (by answering the question)
+        requiresVerification: match.status === 'matched' && isLostReporter,
         secretQuestion: isLostReporter ? match.secret_question : null,
-        secretDetail: isLostReporter ? null : match.secret_detail,
         whereToFind: isLostReporter ? match.where_to_find : null,
       };
     });
@@ -83,9 +82,13 @@ exports.verifyMatch = async (req, res) => {
       return res.status(400).json({ message: 'Answer is required' });
     }
 
-    // Get match details
+    // Get match details - include secret_answer_hash from found_items
     const matchResult = await db.query(
-      `SELECT m.*, li.secret_answer_hash, li.user_id as lost_user_id, fi.user_id as found_user_id, fi.secret_detail
+      `SELECT m.*, 
+              li.user_id as lost_user_id, 
+              fi.user_id as found_user_id,
+              fi.secret_question,
+              fi.secret_answer_hash
        FROM matches m
        JOIN lost_items li ON m.lost_item_id = li.id
        JOIN found_items fi ON m.found_item_id = fi.id
@@ -119,7 +122,7 @@ exports.verifyMatch = async (req, res) => {
       });
     }
 
-    // Verify the answer
+    // Verify the answer against the finder's expected answer
     const isCorrect = await bcrypt.compare(
       answer.toLowerCase().trim(),
       match.secret_answer_hash
@@ -146,6 +149,19 @@ exports.verifyMatch = async (req, res) => {
       await db.query(
         'UPDATE found_items SET status = $1 WHERE id = $2',
         ['closed', match.found_item_id]
+      );
+
+      // Send notification to lost item owner
+      await db.query(
+        `INSERT INTO notifications (user_id, type, title, message, match_id)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          match.lost_user_id,
+          'match_verified',
+          'Match Verified!',
+          'Your lost item has been verified! Check the match details to see where you can collect it.',
+          matchId
+        ]
       );
 
       res.json({ 

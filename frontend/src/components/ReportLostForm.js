@@ -37,8 +37,7 @@ const ReportLostForm = ({ onSuccess }) => {
     location: '',
     dateLost: '',
     timeLost: '',
-    secretQuestion: '',
-    secretAnswer: ''
+    secretDetail: ''
   });
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -82,8 +81,7 @@ const ReportLostForm = ({ onSuccess }) => {
       data.append('location', formData.location);
       data.append('dateLost', formData.dateLost);
       data.append('timeLost', formData.timeLost);
-      data.append('secretQuestion', formData.secretQuestion);
-      data.append('secretAnswer', formData.secretAnswer);
+      data.append('secretDetail', formData.secretDetail);
       if (image) {
         data.append('image', image);
       }
@@ -98,15 +96,17 @@ const ReportLostForm = ({ onSuccess }) => {
         location: '',
         dateLost: '',
         timeLost: '',
-        secretQuestion: '',
-        secretAnswer: ''
+        secretDetail: ''
       });
       setImage(null);
       setImagePreview(null);
       
       if (onSuccess) onSuccess();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to report lost item');
+      console.error('Lost item submission error:', err);
+      console.error('Response:', err.response);
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to report lost item';
+      setError(`Error: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
@@ -235,10 +235,10 @@ const ReportLostForm = ({ onSuccess }) => {
 
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-              Security Verification
+              Security Detail
             </Typography>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Set a secret question only you can answer to verify ownership
+              Provide a unique detail about the item that only you would know. This helps our ML system match items better.
             </Typography>
           </Grid>
 
@@ -246,24 +246,14 @@ const ReportLostForm = ({ onSuccess }) => {
             <TextField
               fullWidth
               required
-              label="Secret Question"
-              name="secretQuestion"
-              value={formData.secretQuestion}
+              multiline
+              rows={2}
+              label="Secret Detail"
+              name="secretDetail"
+              value={formData.secretDetail}
               onChange={handleChange}
-              placeholder="e.g., What is written on the sticker? What's inside the bag?"
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              required
-              type="password"
-              label="Secret Answer"
-              name="secretAnswer"
-              value={formData.secretAnswer}
-              onChange={handleChange}
-              placeholder="Enter the answer to your secret question"
+              placeholder="e.g., Brand name inside, specific damage, unique marking, what's in a specific pocket, etc."
+              helperText="This detail will help match your item and verify ownership"
             />
           </Grid>
 

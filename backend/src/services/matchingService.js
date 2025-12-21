@@ -10,13 +10,45 @@ const { createNotification } = require('../controllers/notificationsController')
 
 // Calculate overall match score
 const calculateMatchScore = (lostItem, foundItem) => {
+  // CRITICAL: Categories MUST match exactly - no cross-category matching
+  if (lostItem.category !== foundItem.category) {
+    return {
+      totalScore: 0,
+      breakdown: {
+        image: 0,
+        description: 0,
+        itemName: 0,
+        category: 0,
+        temporal: 0,
+        spatial: 0,
+      },
+      reason: 'Category mismatch'
+    };
+  }
+
   let scores = {
     image: 0,
     description: 0,
-    category: 0,
+    itemName: 0,
+    category: 1.0, // Already verified above
     temporal: 0,
     spatial: 0,
   };
+
+  // Item name similarity (CRITICAL - must be similar)
+  scores.itemName = semanticSimilarity(
+    lostItem.item_name.toLowerCase(),
+    foundItem.item_name.toLowerCase()
+  );
+
+  // REJECT if item names are too different
+  if (scores.itemName < 0.4) {
+    return {
+      totalScore: 0,
+      breakdown: scores,
+      reason: `Item names too different: "${lostItem.item_name}" vs "${foundItem.item_name}"`
+    };
+  }
 
   // Image similarity (if both have images)
   if (lostItem.image_features && foundItem.image_features) {
@@ -28,25 +60,24 @@ const calculateMatchScore = (lostItem, foundItem) => {
   // Description similarity
   scores.description = semanticSimilarity(lostItem.description, foundItem.description);
 
-  // Category match (binary: 1 or 0)
-  scores.category = lostItem.category === foundItem.category ? 1.0 : 0.0;
-
   // Temporal proximity (date lost vs date found)
   scores.temporal = temporalProximity(lostItem.date_lost, foundItem.date_found);
 
   // Spatial proximity (location similarity)
   scores.spatial = spatialProximity(lostItem.location, foundItem.location);
 
-  // Weighted average
+  // Weighted average with item name as critical factor
   const weights = {
-    image: 0.35,      // 35% weight
-    description: 0.30, // 30% weight
-    category: 0.15,    // 15% weight
-    temporal: 0.10,    // 10% weight
-    spatial: 0.10,     // 10% weight
+    itemName: 0.25,    // 25% - CRITICAL
+    image: 0.30,       // 30% weight
+    description: 0.25, // 25% weight
+    category: 0.10,    // 10% weight (already checked)
+    temporal: 0.05,    // 5% weight
+    spatial: 0.05,     // 5% weight
   };
 
   const totalScore = 
+    (scores.itemName * weights.itemName) +
     (scores.image * weights.image) +
     (scores.description * weights.description) +
     (scores.category * weights.category) +

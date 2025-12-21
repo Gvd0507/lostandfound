@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Tabs, Tab, Alert } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
 import ReportLostForm from '../components/ReportLostForm';
 import ReportFoundForm from '../components/ReportFoundForm';
 
 const ReportPage = () => {
-  const [activeTab, setActiveTab] = useState(0);
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabParam === 'found' ? 1 : 0);
   const [success, setSuccess] = useState(null);
+
+  useEffect(() => {
+    // Update tab when query parameter changes
+    if (tabParam === 'found') {
+      setActiveTab(1);
+    } else if (tabParam === 'lost') {
+      setActiveTab(0);
+    }
+  }, [tabParam]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);

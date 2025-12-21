@@ -8,6 +8,11 @@ const fs = require('fs').promises;
 // Report a lost item
 exports.reportLostItem = async (req, res) => {
   try {
+    console.log('=== Report Lost Item Request ===');
+    console.log('User:', req.user);
+    console.log('Body:', req.body);
+    console.log('Files:', req.files);
+    
     const {
       itemName,
       category,
@@ -15,14 +20,14 @@ exports.reportLostItem = async (req, res) => {
       location,
       dateLost,
       timeLost,
-      secretQuestion,
-      secretAnswer,
+      secretDetail,
     } = req.body;
 
     const userId = req.user.id;
 
     // Validate required fields
-    if (!itemName || !category || !description || !location || !dateLost || !secretQuestion || !secretAnswer) {
+    if (!itemName || !category || !description || !location || !dateLost || !secretDetail) {
+      console.log('Validation failed - missing fields');
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -53,13 +58,10 @@ exports.reportLostItem = async (req, res) => {
       await fs.unlink(image.tempFilePath).catch(err => console.warn('Failed to delete temp file:', err));
     }
 
-    // Hash secret answer
-    const secretAnswerHash = await bcrypt.hash(secretAnswer.toLowerCase().trim(), 10);
-
     // Insert into database
     const result = await db.query(
       `INSERT INTO lost_items 
-       (user_id, item_name, category, description, location, date_lost, image_url, image_features, secret_question, secret_answer_hash)
+       (user_id, item_name, category, description, location, date_lost, time_lost, image_url, image_features, secret_detail)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING *`,
       [
@@ -69,10 +71,10 @@ exports.reportLostItem = async (req, res) => {
         description,
         location,
         dateLost,
+        timeLost || null,
         imageUrl,
         imageFeatures ? JSON.stringify(imageFeatures) : null,
-        secretQuestion,
-        secretAnswerHash,
+        secretDetail,
       ]
     );
 
@@ -113,9 +115,17 @@ exports.reportLostItem = async (req, res) => {
   }
 };
 
-// Get all lost items
+// Get all lost items (admin only)
 exports.getLostItems = async (req, res) => {
   try {
+    // Check if user is admin
+    const userId = req.user.id;
+    const userResult = await db.query('SELECT role FROM users WHERE id = $1', [userId]);
+    
+    if (!userResult.rows[0] || userResult.rows[0].role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
+    
     const { category, status, search } = req.query;
     
     let query = 'SELECT id, item_name, category, description, location, date_lost, image_url, status, created_at FROM lost_items WHERE 1=1';

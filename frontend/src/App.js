@@ -4,6 +4,7 @@ import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
 import Navbar from './components/Navbar';
 import NotificationPopup from './components/NotificationPopup';
 import LoginPage from './pages/LoginPage';
@@ -12,6 +13,7 @@ import ReportPage from './pages/ReportPage';
 import BrowsePage from './pages/BrowsePage';
 import MatchesPage from './pages/MatchesPage';
 import MyReportsPage from './pages/MyReportsPage';
+import AdminDashboard from './pages/AdminDashboard';
 
 const theme = createTheme({
   palette: {
@@ -75,6 +77,14 @@ function App() {
                     <PrivateRoute>
                       <MyReportsPage />
                     </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
                   }
                 />
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -19,6 +19,7 @@ import {
 import { getMyMatches, answerSecretQuestion } from '../services/api';
 import { formatDate, getStatusColor } from '../utils/helpers';
 import { useNotifications } from '../context/NotificationContext';
+import CelebrationPopup from '../components/CelebrationPopup';
 
 const MatchesPage = () => {
   const [matches, setMatches] = useState([]);
@@ -28,6 +29,7 @@ const MatchesPage = () => {
   const [verifyError, setVerifyError] = useState(null);
   const [verifySuccess, setVerifySuccess] = useState(null);
   const [attemptsRemaining, setAttemptsRemaining] = useState(null);
+  const [showCelebration, setShowCelebration] = useState(false);
   const { markAllNotificationsAsRead } = useNotifications();
 
   useEffect(() => {
@@ -55,8 +57,16 @@ const MatchesPage = () => {
     }
 
     try {
-      await answerSecretQuestion(selectedMatch.id, answer);
-      setVerifySuccess('Answer submitted successfully! You will be notified of the result.');
+      const response = await answerSecretQuestion(selectedMatch.id, answer);
+      
+      // Check if verification was successful
+      if (response.verified) {
+        setShowCelebration(true);
+        setVerifySuccess('Match verified successfully! The owner will be notified.');
+      } else {
+        setVerifySuccess('Answer submitted successfully! You will be notified of the result.');
+      }
+      
       setSelectedMatch(null);
       setAnswer('');
       setVerifyError(null);
@@ -172,6 +182,18 @@ const MatchesPage = () => {
                       </Typography>
                     </Box>
 
+                    {/* Show where to find for lost item owners */}
+                    {match.whereToFind && match.yourItem.type === 'lost' && (
+                      <Alert severity="info" sx={{ mt: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          📍 Where to collect: {match.whereToFind}
+                        </Typography>
+                        <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+                          The finder will verify ownership before you can collect your item.
+                        </Typography>
+                      </Alert>
+                    )}
+
                     {match.status === 'matched' && match.requiresVerification && (
                       <Button
                         variant="contained"
@@ -215,9 +237,22 @@ const MatchesPage = () => {
               )}
             </Alert>
           )}
-          <Typography variant="body2" paragraph>
-            <strong>Question:</strong> {selectedMatch?.secretQuestion || 'Please provide verification details'}
-          </Typography>
+          
+          {selectedMatch?.secretQuestion ? (
+            <Box sx={{ mb: 3, p: 2, bgcolor: 'info.light', borderRadius: 1 }}>
+              <Typography variant="subtitle2" color="info.dark" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Security Question:
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                {selectedMatch.secretQuestion}
+              </Typography>
+            </Box>
+          ) : (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              No security question available for this match.
+            </Alert>
+          )}
+          
           <TextField
             fullWidth
             label="Your Answer"
@@ -245,6 +280,12 @@ const MatchesPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Celebration Popup */}
+      <CelebrationPopup 
+        open={showCelebration} 
+        onClose={() => setShowCelebration(false)}
+      />
     </Container>
   );
 };

@@ -90,8 +90,8 @@ export const getAdminCases = async () => {
   return response.data;
 };
 
-export const resolveAdminCase = async (caseId, resolution) => {
-  const response = await api.post(`/admin/cases/${caseId}/resolve`, { resolution });
+export const resolveAdminCase = async (caseId, data) => {
+  const response = await api.post(`/admin/cases/${caseId}/resolve`, data);
   return response.data;
 };
 

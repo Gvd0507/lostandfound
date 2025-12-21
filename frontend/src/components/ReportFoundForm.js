@@ -37,13 +37,15 @@ const ReportFoundForm = ({ onSuccess }) => {
     location: '',
     dateFound: '',
     timeFound: '',
-    secretDetail: '',
+    secretQuestion: '',
+    secretAnswer: '',
     whereToFind: ''
   });
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const handleChange = (e) => {
     setFormData({
@@ -72,6 +74,7 @@ const ReportFoundForm = ({ onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
@@ -82,13 +85,21 @@ const ReportFoundForm = ({ onSuccess }) => {
       data.append('location', formData.location);
       data.append('dateFound', formData.dateFound);
       data.append('timeFound', formData.timeFound);
-      data.append('secretDetail', formData.secretDetail);
+      data.append('secretQuestion', formData.secretQuestion);
+      data.append('secretAnswer', formData.secretAnswer);
       data.append('whereToFind', formData.whereToFind);
       if (image) {
         data.append('image', image);
       }
 
-      await reportFoundItem(data);
+      const response = await reportFoundItem(data);
+      
+      // Check if it was a duplicate
+      if (response.isDuplicate) {
+        setSuccess(`This item was already reported! Your report has been merged. Total reports: ${response.originalItem.duplicateCount}`);
+      } else {
+        setSuccess('Found item reported successfully!');
+      }
       
       // Reset form
       setFormData({
@@ -98,7 +109,8 @@ const ReportFoundForm = ({ onSuccess }) => {
         location: '',
         dateFound: '',
         timeFound: '',
-        secretDetail: '',
+        secretQuestion: '',
+        secretAnswer: '',
         whereToFind: ''
       });
       setImage(null);
@@ -121,6 +133,12 @@ const ReportFoundForm = ({ onSuccess }) => {
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
         </Alert>
       )}
 
@@ -236,10 +254,10 @@ const ReportFoundForm = ({ onSuccess }) => {
 
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-              Secret Detail
+              Verification Question
             </Typography>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Add a unique detail about the item that only the owner would know
+              Ask a question that only the real owner would know the answer to
             </Typography>
           </Grid>
 
@@ -247,12 +265,25 @@ const ReportFoundForm = ({ onSuccess }) => {
             <TextField
               fullWidth
               required
-              label="Secret Detail"
-              name="secretDetail"
-              value={formData.secretDetail}
+              label="Security Question"
+              name="secretQuestion"
+              value={formData.secretQuestion}
               onChange={handleChange}
-              placeholder="e.g., Brand name inside, specific damage, unique marking"
-              helperText="This will be used to verify the real owner"
+              placeholder="e.g., What color is the phone case?"
+              helperText="The owner will need to answer this question correctly"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              required
+              label="Expected Answer"
+              name="secretAnswer"
+              value={formData.secretAnswer}
+              onChange={handleChange}
+              placeholder="e.g., Blue"
+              helperText="The answer the owner should provide to claim the item"
             />
           </Grid>
 

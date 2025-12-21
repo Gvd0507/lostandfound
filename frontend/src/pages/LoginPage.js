@@ -34,8 +34,8 @@ const LoginPage = () => {
         }}
       >
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography variant="h4" align="center" gutterBottom>
-            Campus Lost & Found
+          <Typography variant="h3" align="center" gutterBottom sx={{ fontWeight: 700, letterSpacing: '-0.5px' }}>
+            LoFo
           </Typography>
           <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 4 }}>
             Find your lost items with AI-powered matching

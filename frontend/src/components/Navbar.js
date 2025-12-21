@@ -15,14 +15,15 @@ import {
   Search as SearchIcon,
   Add as AddIcon,
   AccountCircle,
-  Notifications as NotificationsIcon
+  Notifications as NotificationsIcon,
+  AdminPanelSettings as AdminIcon
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { currentUser, signout } = useAuth();
+  const { currentUser, signout, isAdmin } = useAuth();
   const { unreadCount, markAllNotificationsAsRead } = useNotifications();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -58,21 +59,23 @@ const Navbar = () => {
         <Typography
           variant="h6"
           component="div"
-          sx={{ flexGrow: 1, cursor: 'pointer' }}
+          sx={{ flexGrow: 1, cursor: 'pointer', fontWeight: 600, letterSpacing: '0.5px' }}
           onClick={() => navigate('/')}
         >
-          Campus Lost & Found
+          LoFo
         </Typography>
 
         {currentUser && (
           <>
-            <Button
-              color="inherit"
-              startIcon={<SearchIcon />}
-              onClick={() => navigate('/browse')}
-            >
-              Browse
-            </Button>
+            {isAdmin() && (
+              <Button
+                color="inherit"
+                startIcon={<SearchIcon />}
+                onClick={() => navigate('/browse')}
+              >
+                Browse
+              </Button>
+            )}
             <Button
               color="inherit"
               startIcon={<AddIcon />}
@@ -92,6 +95,17 @@ const Navbar = () => {
             >
               Matches
             </Button>
+
+            {isAdmin() && (
+              <Button
+                color="inherit"
+                startIcon={<AdminIcon />}
+                onClick={() => navigate('/admin')}
+                sx={{ color: '#ffd700' }}
+              >
+                Admin
+              </Button>
+            )}
 
             <IconButton
               size="large"

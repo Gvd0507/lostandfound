@@ -13,8 +13,8 @@ const HomePage = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ py: 8 }}>
-        <Typography variant="h3" align="center" gutterBottom>
-          Welcome to Campus Lost & Found
+        <Typography variant="h2" align="center" gutterBottom sx={{ fontWeight: 700, letterSpacing: '-0.5px' }}>
+          Welcome to LoFo
         </Typography>
         <Typography variant="h6" align="center" color="text.secondary" paragraph>
           AI-powered system to reunite you with your lost items
@@ -92,7 +92,7 @@ const HomePage = () => {
           <Button
             variant="contained"
             size="large"
-            onClick={() => navigate('/report')}
+            onClick={() => navigate('/report?tab=lost')}
             sx={{ mr: 2 }}
           >
             Report Lost Item
@@ -100,7 +100,7 @@ const HomePage = () => {
           <Button
             variant="outlined"
             size="large"
-            onClick={() => navigate('/report')}
+            onClick={() => navigate('/report?tab=found')}
           >
             Report Found Item
           </Button>
