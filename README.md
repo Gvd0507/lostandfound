@@ -4,13 +4,13 @@ An AI-powered automated lost and found matching system for GITAM University camp
 
 ## Features
 
-- 🔐 Google Authentication (restricted to @student.gitam.edu and @gitam.in domains)
-- 📸 Image upload for lost/found items
-- 🤖 AI-powered image and text matching
-- 🔒 Secret question verification for security
-- 👤 Anonymous reporting (no user identity disclosed)
-- 🎯 Smart matching algorithm
-- ⚠️ Admin escalation for edge cases
+-  Google Authentication (restricted to @student.gitam.edu and @gitam.in domains)
+-  Image upload for lost/found items
+-  AI-powered image and text matching
+-  Secret question verification for security
+-  Anonymous reporting (no user identity disclosed)
+-  Smart matching algorithm
+-  Admin escalation for edge cases
 
 ## Tech Stack
 
@@ -33,28 +33,6 @@ An AI-powered automated lost and found matching system for GITAM University camp
 - PostgreSQL for structured data
 - Firebase Authentication for user management
 
-## Project Structure
-
-```
-lost-and-found/
-├── frontend/              # React application
-│   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── services/     # API and auth services
-│   │   ├── utils/        # Utility functions
-│   │   └── pages/        # Page components
-│   └── public/
-├── backend/              # Node.js API
-│   ├── src/
-│   │   ├── routes/       # API routes
-│   │   ├── controllers/  # Business logic
-│   │   ├── models/       # Database models
-│   │   ├── middleware/   # Auth & validation
-│   │   ├── services/     # AI matching service
-│   │   └── config/       # Configuration
-│   └── tests/
-└── database/             # Database schemas
-```
 
 ## Setup Instructions
 

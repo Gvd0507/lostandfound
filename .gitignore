@@ -31,6 +31,7 @@ Thumbs.db
 firebase-debug.log
 .firebase/
 serviceAccountKey.json
+firebase config.txt
 
 # Database
 *.db
@@ -39,3 +40,6 @@ serviceAccountKey.json
 # Uploads (use Cloudinary instead)
 uploads/
 temp/
+
+#json
+lostandfound-c04d8-firebase-adminsdk-fbsvc-d85eaaf066.json
